@@ -1,7 +1,7 @@
 from django_prometheus.db import (
     connections_total, execute_total, execute_many_total, errors_total,
-    connection_errors_total)
-
+    connection_errors_total, execute_duration)
+import time
 
 class ExceptionCounterByType(object):
     """A context manager that counts exceptions by type.
@@ -58,15 +58,26 @@ def ExportingCursorWrapper(cursor_class, alias, vendor):
 
         def execute(self, *args, **kwargs):
             execute_total.labels(alias, vendor).inc()
-            with ExceptionCounterByType(errors_total, extra_labels={
-                    'alias': alias, 'vendor': vendor}):
-                return super(CursorWrapper, self).execute(*args, **kwargs)
+            try:
+                start = time.time()
+                with ExceptionCounterByType(errors_total, extra_labels={
+                        'alias': alias, 'vendor': vendor}):
+                    return super(CursorWrapper, self).execute(*args, **kwargs)
+            finally:
+                end = time.time()
+                execute_duration.inc(end-start)
 
         def executemany(self, query, param_list, *args, **kwargs):
             execute_total.labels(alias, vendor).inc(len(param_list))
             execute_many_total.labels(alias, vendor).inc(len(param_list))
-            with ExceptionCounterByType(errors_total, extra_labels={
-                    'alias': alias, 'vendor': vendor}):
-                return super(CursorWrapper, self).executemany(
-                    query, param_list, *args, **kwargs)
+            try:
+                start = time.time()
+                with ExceptionCounterByType(errors_total, extra_labels={
+                        'alias': alias, 'vendor': vendor}):
+                    return super(CursorWrapper, self).executemany(
+                        query, param_list, *args, **kwargs)
+            finally:
+                end = time.time()
+                execute_duration.inc(end-start)
+                
     return CursorWrapper
