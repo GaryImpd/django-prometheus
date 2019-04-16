@@ -39,6 +39,7 @@ job:django_db_new_connection_errors_total:sum_rate30s = sum(rate(django_db_new_c
 job:django_db_execute_total:sum_rate30s = sum(rate(django_db_execute_total[30s])) by (alias, vendor)
 job:django_db_execute_many_total:sum_rate30s = sum(rate(django_db_execute_many_total[30s])) by (alias, vendor)
 job:django_db_errors_total:sum_rate30s = sum(rate(django_db_errors_total[30s])) by (alias, vendor, type)
+job:django_db_execution_time:sum_rate30s = sum(rate(django_db_execution_time[30s])) by (alias, vendor, type)
 
 # Aggregate migrations
 job:django_migrations_applied_total:max = max(django_migrations_applied_total) by (job, connection)

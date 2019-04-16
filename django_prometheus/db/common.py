@@ -65,7 +65,7 @@ def ExportingCursorWrapper(cursor_class, alias, vendor):
                     return super(CursorWrapper, self).execute(*args, **kwargs)
             finally:
                 end = time.time()
-                execute_duration.inc(end-start)
+                execute_duration.labels(alias, vendor).inc(end-start)
 
         def executemany(self, query, param_list, *args, **kwargs):
             execute_total.labels(alias, vendor).inc(len(param_list))
@@ -78,6 +78,6 @@ def ExportingCursorWrapper(cursor_class, alias, vendor):
                         query, param_list, *args, **kwargs)
             finally:
                 end = time.time()
-                execute_duration.inc(end-start)
+                execute_duration.labels(alias, vendor).inc(end-start)
                 
     return CursorWrapper
