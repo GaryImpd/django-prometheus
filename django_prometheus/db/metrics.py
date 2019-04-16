@@ -32,5 +32,6 @@ errors_total = Counter(
 
 execute_duration = Counter(
     'django_db_execution_time',
-    ('Counter of milliseconds of execution time,'))
+    ('Counter of milliseconds of execution time,'),
+    ['alias', 'vendor'])
 
